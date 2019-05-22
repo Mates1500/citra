@@ -437,6 +437,12 @@ void ConfigureInput::NewProfile() {
     if (name.isEmpty()) {
         return;
     }
+    if (ui->profile->findText(name, Qt::MatchFixedString | Qt::MatchCaseSensitive) != -1) {
+        QMessageBox::warning(this, tr("Duplicate profile name"),
+                             tr("Profile name already exists. Please choose a different name."));
+        return;
+    }
+
     applyConfiguration();
     Settings::SaveProfile(ui->profile->currentIndex());
     Settings::CreateProfile(name.toStdString());
@@ -465,6 +471,12 @@ void ConfigureInput::RenameProfile() {
     if (new_name.isEmpty()) {
         return;
     }
+    if (ui->profile->findText(new_name, Qt::MatchFixedString | Qt::MatchCaseSensitive) != -1) {
+        QMessageBox::warning(this, tr("Duplicate profile name"),
+                                 tr("Profile name already exists. Please choose a different name."));
+        return;
+    }
+
     ui->profile->setItemText(ui->profile->currentIndex(), new_name);
     Settings::RenameCurrentProfile(new_name.toStdString());
 }
