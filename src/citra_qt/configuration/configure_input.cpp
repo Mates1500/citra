@@ -479,7 +479,7 @@ void ConfigureInput::RenameProfile() {
     Settings::RenameCurrentProfile(new_name.toStdString());
 }
 
-bool ConfigureInput::IsProfileNameDuplicate(const QString& name) {
+bool ConfigureInput::IsProfileNameDuplicate(const QString& name) const {
     return ui->profile->findText(name, Qt::MatchFixedString | Qt::MatchCaseSensitive) != -1;
 }
 

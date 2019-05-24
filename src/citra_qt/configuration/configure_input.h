@@ -120,6 +120,6 @@ private:
     void DeleteProfile();
     void RenameProfile();
 
-    bool IsProfileNameDuplicate(const QString& name);
+    bool IsProfileNameDuplicate(const QString& name) const;
     void WarnProposedProfileNameIsDuplicate();
 };
