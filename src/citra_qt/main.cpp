@@ -241,7 +241,7 @@ void GMainWindow::InitializeWidgets() {
         tr("Indicates whether 3D is currently on or off. Click to toggle."));
 
     factor_3d_spinbox = new QSpinBox(this);
-    factor_3d_spinbox->setToolTip(("Current 3D factor while 3D is enabled."));
+    factor_3d_spinbox->setToolTip(tr("Current 3D factor while 3D is enabled."));
     factor_3d_spinbox->setSingleStep(5);
     factor_3d_spinbox->setRange(0, 100);
     factor_3d_spinbox->setVisible(false);
