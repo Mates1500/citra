@@ -382,20 +382,6 @@ void GMainWindow::InitializeHotkeys() {
     ui.action_Show_Status_Bar->setShortcutContext(
         hotkey_registry.GetShortcutContext("Main Window", "Toggle Status Bar"));
 
-    ui.action_Toggle_3D->setShortcut(hotkey_registry.GetKeySequence("Main Window", "Toggle 3D"));
-    ui.action_Toggle_3D->setShortcutContext(
-        hotkey_registry.GetShortcutContext("Main Window", "Toggle 3D"));
-
-    ui.action_Increase_3D->setShortcut(
-        hotkey_registry.GetKeySequence("Main Window", "Increase 3D Factor"));
-    ui.action_Increase_3D->setShortcutContext(
-        hotkey_registry.GetShortcutContext("Main Window", "Increase 3D Factor"));
-
-    ui.action_Decrease_3D->setShortcut(
-        hotkey_registry.GetKeySequence("Main Window", "Decrease 3D Factor"));
-    ui.action_Decrease_3D->setShortcutContext(
-        hotkey_registry.GetShortcutContext("Main Window", "Decrease 3D Factor"));
-
     connect(hotkey_registry.GetHotkey("Main Window", "Load File", this), &QShortcut::activated,
             this, &GMainWindow::OnMenuLoadFile);
 
@@ -476,7 +462,7 @@ void GMainWindow::InitializeHotkeys() {
             });
 
     connect(hotkey_registry.GetHotkey("Main Window", "Toggle 3D", this), &QShortcut::activated,
-            ui.action_Toggle_3D, &QAction::trigger);
+            this, &GMainWindow::Toggle3D);
 
     // We use "static" here in order to avoid capturing by lambda due to a MSVC bug, which makes the
     // variable hold a garbage value after this function exits
@@ -671,10 +657,9 @@ void GMainWindow::ConnectMenuEvents() {
 }
 
 void GMainWindow::ConnectStatusBarEvents() {
-    connect(ui.action_Toggle_3D, &QAction::triggered, this, &GMainWindow::Toggle3D);
-    connect(status_3d_label, &ClickableLabel::clicked, ui.action_Toggle_3D, &QAction::trigger);
+    connect(status_3d_label, &ClickableLabel::clicked, this, &GMainWindow::Toggle3D);
     connect(factor_3d_spinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
-            this, [&](int value) {
+        this, [&](int value) {
                 Settings::values.factor_3d = value;
                 UpdateStatusBar();
             });
@@ -1752,7 +1737,7 @@ void GMainWindow::OnMenuAboutCitra() {
 }
 
 void GMainWindow::Toggle3D() {
-    Settings::values.toggle_3d = !ui.action_Toggle_3D->isChecked();
+    Settings::values.toggle_3d = !Settings::values.toggle_3d;
     UpdateStatusBar();
 }
 

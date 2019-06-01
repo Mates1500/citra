@@ -474,24 +474,6 @@
     <string>Open Citra Folder</string>
    </property>
   </action>
-  <action name="action_Toggle_3D">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Toggle 3D</string>
-   </property>
-  </action>
-  <action name="action_Increase_3D">
-   <property name="text">
-    <string>Increase 3D</string>
-   </property>
-  </action>
-  <action name="action_Decrease_3D">
-   <property name="text">
-    <string>Decrease 3D</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>
