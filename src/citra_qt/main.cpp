@@ -157,6 +157,7 @@ GMainWindow::GMainWindow() : config(new Config()), emu_thread(nullptr) {
 
     ConnectMenuEvents();
     ConnectWidgetEvents();
+    ConnectStatusBarEvents();
 
     SetupUIStrings();
     LOG_INFO(Frontend, "Citra Version: {} | {}-{}", Common::g_build_fullname, Common::g_scm_branch,
@@ -235,7 +236,19 @@ void GMainWindow::InitializeWidgets() {
         tr("Time taken to emulate a 3DS frame, not counting framelimiting or v-sync. For "
            "full-speed emulation this should be at most 16.67 ms."));
 
-    for (auto& label : {emu_speed_label, game_fps_label, emu_frametime_label}) {
+    status_3d_label = new ClickableLabel(this);
+    status_3d_label->setToolTip(
+        tr("Indicates whether 3D is currently on or off. Click to toggle."));
+
+    factor_3d_spinbox = new QSpinBox(this);
+    factor_3d_spinbox->setToolTip(("Current 3D factor while 3D is enabled."));
+    factor_3d_spinbox->setSingleStep(5);
+    factor_3d_spinbox->setRange(0, 100);
+    factor_3d_spinbox->setVisible(false);
+    statusBar()->addPermanentWidget(factor_3d_spinbox, 0);
+
+    for (auto& label : {static_cast<QLabel*>(status_3d_label), emu_speed_label, game_fps_label,
+                        emu_frametime_label}) {
         label->setVisible(false);
         label->setFrameStyle(QFrame::NoFrame);
         label->setContentsMargins(4, 0, 4, 0);
@@ -369,6 +382,20 @@ void GMainWindow::InitializeHotkeys() {
     ui.action_Show_Status_Bar->setShortcutContext(
         hotkey_registry.GetShortcutContext("Main Window", "Toggle Status Bar"));
 
+    ui.action_Toggle_3D->setShortcut(hotkey_registry.GetKeySequence("Main Window", "Toggle 3D"));
+    ui.action_Toggle_3D->setShortcutContext(
+        hotkey_registry.GetShortcutContext("Main Window", "Toggle 3D"));
+
+    ui.action_Increase_3D->setShortcut(
+        hotkey_registry.GetKeySequence("Main Window", "Increase 3D Factor"));
+    ui.action_Increase_3D->setShortcutContext(
+        hotkey_registry.GetShortcutContext("Main Window", "Increase 3D Factor"));
+
+    ui.action_Decrease_3D->setShortcut(
+        hotkey_registry.GetKeySequence("Main Window", "Decrease 3D Factor"));
+    ui.action_Decrease_3D->setShortcutContext(
+        hotkey_registry.GetShortcutContext("Main Window", "Decrease 3D Factor"));
+
     connect(hotkey_registry.GetHotkey("Main Window", "Load File", this), &QShortcut::activated,
             this, &GMainWindow::OnMenuLoadFile);
 
@@ -445,6 +472,37 @@ void GMainWindow::InitializeHotkeys() {
             &QShortcut::activated, this, [&] {
                 if (emu_thread->IsRunning()) {
                     OnCaptureScreenshot();
+                }
+            });
+
+    connect(hotkey_registry.GetHotkey("Main Window", "Toggle 3D", this), &QShortcut::activated,
+            ui.action_Toggle_3D, &QAction::trigger);
+
+    // We use "static" here in order to avoid capturing by lambda due to a MSVC bug, which makes the
+    // variable hold a garbage value after this function exits
+    static constexpr u16 FACTOR_3D_STEP = 5;
+    connect(hotkey_registry.GetHotkey("Main Window", "Decrease 3D Factor", this),
+            &QShortcut::activated, this, [&] {
+                if (Settings::values.factor_3d > 0) {
+                    if (Settings::values.factor_3d % FACTOR_3D_STEP != 0) {
+                        Settings::values.factor_3d -= Settings::values.factor_3d % FACTOR_3D_STEP;
+                    } else {
+                        Settings::values.factor_3d -= FACTOR_3D_STEP;
+                    }
+                    UpdateStatusBar();
+                }
+            });
+
+    connect(hotkey_registry.GetHotkey("Main Window", "Increase 3D Factor", this),
+            &QShortcut::activated, this, [&] {
+                if (Settings::values.factor_3d < 100) {
+                    if (Settings::values.factor_3d % FACTOR_3D_STEP != 0) {
+                        Settings::values.factor_3d +=
+                            FACTOR_3D_STEP - (Settings::values.factor_3d % FACTOR_3D_STEP);
+                    } else {
+                        Settings::values.factor_3d += FACTOR_3D_STEP;
+                    }
+                    UpdateStatusBar();
                 }
             });
 }
@@ -610,6 +668,16 @@ void GMainWindow::ConnectMenuEvents() {
             &GMainWindow::OnCheckForUpdates);
     connect(ui.action_Open_Maintenance_Tool, &QAction::triggered, this,
             &GMainWindow::OnOpenUpdater);
+}
+
+void GMainWindow::ConnectStatusBarEvents() {
+    connect(ui.action_Toggle_3D, &QAction::triggered, this, &GMainWindow::Toggle3D);
+    connect(status_3d_label, &ClickableLabel::clicked, ui.action_Toggle_3D, &QAction::trigger);
+    connect(factor_3d_spinbox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged),
+            this, [&](int value) {
+                Settings::values.factor_3d = value;
+                UpdateStatusBar();
+            });
 }
 
 void GMainWindow::OnDisplayTitleBars(bool show) {
@@ -919,6 +987,8 @@ void GMainWindow::ShutdownGame() {
     emu_speed_label->setVisible(false);
     game_fps_label->setVisible(false);
     emu_frametime_label->setVisible(false);
+    status_3d_label->setVisible(false);
+    factor_3d_spinbox->setVisible(false);
 
     emulation_running = false;
 
@@ -1359,6 +1429,7 @@ void GMainWindow::OnConfigure() {
         SyncMenuUISettings();
         game_list->RefreshGameDirectory();
         config->Save();
+        UpdateStatusBar();
     } else {
         Settings::values.input_profiles = old_input_profiles;
         Settings::LoadProfile(old_input_profile_index);
@@ -1611,10 +1682,15 @@ void GMainWindow::UpdateStatusBar() {
     }
     game_fps_label->setText(tr("Game: %1 FPS").arg(results.game_fps, 0, 'f', 0));
     emu_frametime_label->setText(tr("Frame: %1 ms").arg(results.frametime * 1000.0, 0, 'f', 2));
+    status_3d_label->setText(
+        tr("3D status: %1").arg(Settings::values.toggle_3d ? tr("ON") : tr("OFF")));
+    factor_3d_spinbox->setValue(Settings::values.factor_3d);
 
     emu_speed_label->setVisible(true);
     game_fps_label->setVisible(true);
     emu_frametime_label->setVisible(true);
+    status_3d_label->setVisible(true);
+    factor_3d_spinbox->setVisible(Settings::values.toggle_3d);
 }
 
 void GMainWindow::OnCoreError(Core::System::ResultStatus result, std::string details) {
@@ -1673,6 +1749,11 @@ void GMainWindow::OnCoreError(Core::System::ResultStatus result, std::string det
 void GMainWindow::OnMenuAboutCitra() {
     AboutDialog about{this};
     about.exec();
+}
+
+void GMainWindow::Toggle3D() {
+    Settings::values.toggle_3d = !ui.action_Toggle_3D->isChecked();
+    UpdateStatusBar();
 }
 
 bool GMainWindow::ConfirmClose() {

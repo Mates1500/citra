@@ -37,6 +37,7 @@ class ProfilerWidget;
 template <typename>
 class QFutureWatcher;
 class QProgressBar;
+class QSpinBox;
 class RegistersWidget;
 class Updater;
 class WaitTreeWidget;
@@ -103,6 +104,7 @@ private:
 
     void ConnectWidgetEvents();
     void ConnectMenuEvents();
+    void ConnectStatusBarEvents();
 
     bool LoadROM(const QString& filename);
     void BootGame(const QString& filename);
@@ -185,6 +187,7 @@ private slots:
     void OnStopRecordingPlayback();
     void OnCaptureScreenshot();
     void OnCoreError(Core::System::ResultStatus, std::string);
+    void Toggle3D();
     /// Called whenever a user selects Help->About Citra
     void OnMenuAboutCitra();
     void OnUpdateFound(bool found, bool error);
@@ -213,6 +216,8 @@ private:
     QLabel* emu_speed_label = nullptr;
     QLabel* game_fps_label = nullptr;
     QLabel* emu_frametime_label = nullptr;
+    ClickableLabel* status_3d_label = nullptr;
+    QSpinBox* factor_3d_spinbox = nullptr;
     QTimer status_bar_update_timer;
 
     MultiplayerState* multiplayer_state = nullptr;

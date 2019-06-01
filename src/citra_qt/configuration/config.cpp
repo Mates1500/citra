@@ -54,14 +54,16 @@ const std::array<std::array<int, 5>, Settings::NativeAnalog::NumAnalogs> Config:
 // QKeySequnce(...).toString() is NOT ALLOWED HERE.
 // This must be in alphabetical order according to action name as it must have the same order as
 // UISetting::values.shortcuts, which is alphabetically ordered.
-const std::array<UISettings::Shortcut, 19> Config::default_hotkeys{
+const std::array<UISettings::Shortcut, 22> Config::default_hotkeys{
     {{"Advance Frame", "Main Window", {"\\", Qt::ApplicationShortcut}},
      {"Capture Screenshot", "Main Window", {"Ctrl+P", Qt::ApplicationShortcut}},
      {"Continue/Pause Emulation", "Main Window", {"F4", Qt::WindowShortcut}},
+     {"Decrease 3D Factor", "Main Window", {"Ctrl+-", Qt::ApplicationShortcut}},
      {"Decrease Speed Limit", "Main Window", {"-", Qt::ApplicationShortcut}},
      {"Exit Citra", "Main Window", {"Ctrl+Q", Qt::WindowShortcut}},
      {"Exit Fullscreen", "Main Window", {"Esc", Qt::WindowShortcut}},
      {"Fullscreen", "Main Window", {"F11", Qt::WindowShortcut}},
+     {"Increase 3D Factor", "Main Window", {"Ctrl++", Qt::ApplicationShortcut}},
      {"Increase Speed Limit", "Main Window", {"+", Qt::ApplicationShortcut}},
      {"Load Amiibo", "Main Window", {"F2", Qt::ApplicationShortcut}},
      {"Load File", "Main Window", {"Ctrl+O", Qt::WindowShortcut}},
@@ -69,6 +71,7 @@ const std::array<UISettings::Shortcut, 19> Config::default_hotkeys{
      {"Restart Emulation", "Main Window", {"F6", Qt::WindowShortcut}},
      {"Stop Emulation", "Main Window", {"F5", Qt::WindowShortcut}},
      {"Swap Screens", "Main Window", {"F9", Qt::WindowShortcut}},
+     {"Toggle 3D", "Main Window", {"Ctrl+3", Qt::ApplicationShortcut}},
      {"Toggle Filter Bar", "Main Window", {"Ctrl+F", Qt::WindowShortcut}},
      {"Toggle Frame Advancing", "Main Window", {"Ctrl+A", Qt::ApplicationShortcut}},
      {"Toggle Screen Layout", "Main Window", {"F10", Qt::WindowShortcut}},
