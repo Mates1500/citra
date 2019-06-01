@@ -658,11 +658,10 @@ void GMainWindow::ConnectMenuEvents() {
 
 void GMainWindow::ConnectStatusBarEvents() {
     connect(status_3d_label, &ClickableLabel::clicked, this, &GMainWindow::Toggle3D);
-    connect(factor_3d_spinbox, qOverload<int>(&QSpinBox::valueChanged),
-        this, [this](int value) {
-                Settings::values.factor_3d = value;
-                UpdateStatusBar();
-            });
+    connect(factor_3d_spinbox, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value) {
+        Settings::values.factor_3d = value;
+        UpdateStatusBar();
+    });
 }
 
 void GMainWindow::OnDisplayTitleBars(bool show) {
