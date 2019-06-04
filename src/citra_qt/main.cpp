@@ -467,7 +467,7 @@ void GMainWindow::InitializeHotkeys() {
     // variable hold a garbage value after this function exits
     static constexpr u16 FACTOR_3D_STEP = 5;
     connect(hotkey_registry.GetHotkey("Main Window", "Decrease 3D Factor", this),
-            &QShortcut::activated, this, [&] {
+            &QShortcut::activated, this, [this] {
                 if (Settings::values.factor_3d > 0) {
                     if (Settings::values.factor_3d % FACTOR_3D_STEP != 0) {
                         Settings::values.factor_3d -= Settings::values.factor_3d % FACTOR_3D_STEP;
@@ -479,7 +479,7 @@ void GMainWindow::InitializeHotkeys() {
             });
 
     connect(hotkey_registry.GetHotkey("Main Window", "Increase 3D Factor", this),
-            &QShortcut::activated, this, [&] {
+            &QShortcut::activated, this, [this] {
                 if (Settings::values.factor_3d < 100) {
                     if (Settings::values.factor_3d % FACTOR_3D_STEP != 0) {
                         Settings::values.factor_3d +=
