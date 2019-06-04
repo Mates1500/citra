@@ -250,6 +250,7 @@ void GMainWindow::InitializeWidgets() {
                         emu_frametime_label}) {
         label->setVisible(false);
         label->setFrameStyle(QFrame::NoFrame);
+        label->setSizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::Minimum);
         label->setContentsMargins(4, 0, 4, 0);
         statusBar()->addPermanentWidget(label, 0);
     }
