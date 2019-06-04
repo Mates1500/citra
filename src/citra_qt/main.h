@@ -37,7 +37,7 @@ class ProfilerWidget;
 template <typename>
 class QFutureWatcher;
 class QProgressBar;
-class QSpinBox;
+class QSlider;
 class RegistersWidget;
 class Updater;
 class WaitTreeWidget;
@@ -217,7 +217,7 @@ private:
     QLabel* game_fps_label = nullptr;
     QLabel* emu_frametime_label = nullptr;
     ClickableLabel* status_3d_label = nullptr;
-    QSpinBox* factor_3d_spinbox = nullptr;
+    QSlider* factor_3d_slider = nullptr;
     QTimer status_bar_update_timer;
 
     MultiplayerState* multiplayer_state = nullptr;

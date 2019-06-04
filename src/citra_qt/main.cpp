@@ -240,12 +240,11 @@ void GMainWindow::InitializeWidgets() {
     status_3d_label->setToolTip(
         tr("Indicates whether 3D is currently on or off. Click to toggle."));
 
-    factor_3d_spinbox = new QSpinBox(this);
-    factor_3d_spinbox->setToolTip(tr("Current 3D factor while 3D is enabled."));
-    factor_3d_spinbox->setSingleStep(5);
-    factor_3d_spinbox->setRange(0, 100);
-    factor_3d_spinbox->setVisible(false);
-    statusBar()->addPermanentWidget(factor_3d_spinbox, 0);
+    factor_3d_slider = new QSlider(Qt::Orientation::Horizontal, this);
+    factor_3d_slider->setToolTip(tr("Current 3D factor while 3D is enabled."));
+    factor_3d_slider->setRange(0, 100);
+    factor_3d_slider->setVisible(false);
+    statusBar()->addPermanentWidget(factor_3d_slider, 0);
 
     for (auto& label : {static_cast<QLabel*>(status_3d_label), emu_speed_label, game_fps_label,
                         emu_frametime_label}) {
@@ -658,9 +657,8 @@ void GMainWindow::ConnectMenuEvents() {
 
 void GMainWindow::ConnectStatusBarEvents() {
     connect(status_3d_label, &ClickableLabel::clicked, this, &GMainWindow::Toggle3D);
-    connect(factor_3d_spinbox, qOverload<int>(&QSpinBox::valueChanged), this, [this](int value) {
+    connect(factor_3d_slider, qOverload<int>(&QSlider::valueChanged), this, [this](int value) {
         Settings::values.factor_3d = value;
-        UpdateStatusBar();
     });
 }
 
@@ -972,7 +970,7 @@ void GMainWindow::ShutdownGame() {
     game_fps_label->setVisible(false);
     emu_frametime_label->setVisible(false);
     status_3d_label->setVisible(false);
-    factor_3d_spinbox->setVisible(false);
+    factor_3d_slider->setVisible(false);
 
     emulation_running = false;
 
@@ -1668,13 +1666,13 @@ void GMainWindow::UpdateStatusBar() {
     emu_frametime_label->setText(tr("Frame: %1 ms").arg(results.frametime * 1000.0, 0, 'f', 2));
     status_3d_label->setText(
         tr("3D status: %1").arg(Settings::values.toggle_3d ? tr("ON") : tr("OFF")));
-    factor_3d_spinbox->setValue(Settings::values.factor_3d);
+    factor_3d_slider->setValue(Settings::values.factor_3d);
 
     emu_speed_label->setVisible(true);
     game_fps_label->setVisible(true);
     emu_frametime_label->setVisible(true);
     status_3d_label->setVisible(true);
-    factor_3d_spinbox->setVisible(Settings::values.toggle_3d);
+    factor_3d_slider->setVisible(Settings::values.toggle_3d);
 }
 
 void GMainWindow::OnCoreError(Core::System::ResultStatus result, std::string details) {
